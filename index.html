@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ERD CLOUD</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%233b6fe0'/%3E%3Ctext x='16' y='22' font-size='16' font-weight='bold' text-anchor='middle' fill='white' font-family='sans-serif'%3EE%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ===== 대시보드 (ERD 목록) ===== -->
+<section id="view-dash" class="view">
+  <header class="dash-head">
+    <a class="logo" href="#/"><span class="logo-mark">E</span>ERD CLOUD</a>
+    <input id="dash-search" class="search" type="search" placeholder="ERD 이름 검색" spellcheck="false">
+    <span class="flex-sp"></span>
+    <button id="btn-import" class="btn">JSON 가져오기</button>
+    <button id="btn-new" class="btn primary">＋ 새 ERD</button>
+  </header>
+  <main class="dash-main">
+    <h2>내 ERD <span id="dash-count" class="count"></span></h2>
+    <div id="dash-grid" class="grid"></div>
+  </main>
+</section>
+
+<!-- ===== 에디터 ===== -->
+<section id="view-editor" class="view" hidden>
+  <header class="ed-head">
+    <a class="back" href="#/" title="목록으로">←</a>
+    <input id="ed-name" class="ed-name" spellcheck="false" title="ERD 이름">
+    <div class="tb-sep"></div>
+    <button id="tb-table" class="btn tb" title="테이블 추가">
+      <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1.5" y="2" width="13" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 6.5h13" stroke="currentColor" stroke-width="1.5"/></svg>
+      테이블</button>
+    <button id="tb-memo" class="btn tb" title="메모 추가">
+      <svg width="14" height="14" viewBox="0 0 16 16"><path d="M2 2h12v8l-4 4H2z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 14v-4h4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+      메모</button>
+    <div class="tb-sep"></div>
+    <div id="tb-rels" class="tb-rels">
+      <button class="btn tb" data-rel="id-1n" title="1:N 식별 관계 (실선) — 클릭 후 부모 → 자식 테이블 순서로 클릭">
+        <svg width="42" height="16" viewBox="0 0 42 16"><path d="M8 2v12" stroke="currentColor" stroke-width="1.5"/><path d="M1 8h33" stroke="currentColor" stroke-width="1.5"/><path d="M34 8l7-5.5M34 8h8M34 8l7 5.5" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></button>
+      <button class="btn tb" data-rel="nid-1n" title="1:N 비식별 관계 (점선) — 클릭 후 부모 → 자식 테이블 순서로 클릭">
+        <svg width="42" height="16" viewBox="0 0 42 16"><path d="M8 2v12" stroke="currentColor" stroke-width="1.5"/><path d="M1 8h33" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/><path d="M34 8l7-5.5M34 8h8M34 8l7 5.5" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></button>
+      <button class="btn tb" data-rel="id-11" title="1:1 식별 관계 (실선) — 클릭 후 부모 → 자식 테이블 순서로 클릭">
+        <svg width="42" height="16" viewBox="0 0 42 16"><path d="M8 2v12M34 2v12" stroke="currentColor" stroke-width="1.5"/><path d="M1 8h40" stroke="currentColor" stroke-width="1.5"/></svg></button>
+      <button class="btn tb" data-rel="nid-11" title="1:1 비식별 관계 (점선) — 클릭 후 부모 → 자식 테이블 순서로 클릭">
+        <svg width="42" height="16" viewBox="0 0 42 16"><path d="M8 2v12M34 2v12" stroke="currentColor" stroke-width="1.5"/><path d="M1 8h40" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/></svg></button>
+    </div>
+    <div class="tb-sep"></div>
+    <button id="tb-undo" class="btn tb" title="실행 취소 (Ctrl+Z)">↩</button>
+    <button id="tb-redo" class="btn tb" title="다시 실행 (Ctrl+Shift+Z)">↪</button>
+    <div class="tb-sep"></div>
+    <button id="tb-zoom-out" class="btn tb" title="축소">−</button>
+    <button id="tb-zoom-pct" class="btn tb" title="100%로 재설정">100%</button>
+    <button id="tb-zoom-in" class="btn tb" title="확대">＋</button>
+    <button id="tb-fit" class="btn tb" title="전체 보기">맞춤</button>
+    <span class="flex-sp"></span>
+    <span id="save-state" class="save-state"></span>
+    <button id="tb-sql" class="btn tb strong" title="MySQL DDL 생성">SQL 내보내기</button>
+    <button id="tb-png" class="btn tb" title="이미지로 저장">PNG</button>
+    <button id="tb-json" class="btn tb" title="JSON 파일로 저장">JSON</button>
+  </header>
+  <div class="ed-body">
+    <div id="canvas-wrap">
+      <div id="canvas">
+        <svg id="rel-layer" width="6000" height="6000"></svg>
+        <div id="obj-layer"></div>
+      </div>
+      <div id="mode-hint" hidden></div>
+    </div>
+    <aside id="panel" hidden></aside>
+  </div>
+</section>
+
+<div id="modal-root"></div>
+<input type="file" id="file-json" accept=".json,application/json" hidden>
+<datalist id="dl-types">
+  <option value="INT"></option><option value="BIGINT"></option><option value="SMALLINT"></option>
+  <option value="TINYINT"></option><option value="VARCHAR(20)"></option><option value="VARCHAR(50)"></option>
+  <option value="VARCHAR(100)"></option><option value="VARCHAR(255)"></option><option value="CHAR(1)"></option>
+  <option value="TEXT"></option><option value="LONGTEXT"></option><option value="DATETIME"></option>
+  <option value="DATE"></option><option value="TIME"></option><option value="TIMESTAMP"></option>
+  <option value="DECIMAL(10,2)"></option><option value="FLOAT"></option><option value="DOUBLE"></option>
+  <option value="BOOLEAN"></option><option value="JSON"></option><option value="BLOB"></option>
+</datalist>
+
+<script src="js/core.js"></script>
+<script src="js/exports.js"></script>
+<script src="js/editor.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
